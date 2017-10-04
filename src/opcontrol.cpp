@@ -24,7 +24,7 @@
 using namespace okapi;
 
 void operatorControl() {
-	using namespace std; //Needed to get round to compile
+	using namespace std;
 
 	Encoder leftEnc = encoderInit(1, 2, false);
 	Encoder rightEnc = encoderInit(3, 4, false);
@@ -41,7 +41,7 @@ void operatorControl() {
   pid.init(0.2, 0.004, 3);
 
 	while (1) {
-    float measurement = (encoderGet(leftEnc) + encoderGet(rightEnc)) / 2.0
+    float measurement = (encoderGet(leftEnc) + encoderGet(rightEnc)) / 2.0;
     pid.updateError(measurement);
     pid.counter_++;
     controller.driveForward(pid.totalError());
@@ -51,10 +51,10 @@ void operatorControl() {
       if (pid.needsTraining_)
         pid.backProp();
       else
-        printf("Measurement: %1.2f, Response: %1.2f, RMSE: %1.2f, Kp: %1.2f, Ki: %1.2f, Kd: %1.2f\n", measurement, sqrt(pid.currentEpochError_ / pid.counter_), pid.getKp(), pid.getKi(), pid.getKd());
+        printf("Measurement: %1.2f, Response: %1.2f, RMSE: %1.2f, Kp: %1.2f, Ki: %1.2f, Kd: %1.2f\n", measurement, (float)sqrt(pid.currentEpochError_ / pid.counter_), pid.getKp(), pid.getKi(), pid.getKd());
       pid.resetEpochError();
     }
-  }
+
 		// if (joystickGetDigital(1, 6, JOY_UP))
 		// 	target = liftUpTarget;
 		// else if (joystickGetDigital(1, 6, JOY_DOWN))

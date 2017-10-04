@@ -34,4 +34,4 @@ namespace okapi {
     };
 }
 
-#endif OKAPI_AUTOPID /* end of include guard: OKAPI_AUTOPID */
+#endif /* end of include guard: OKAPI_AUTOPID */
