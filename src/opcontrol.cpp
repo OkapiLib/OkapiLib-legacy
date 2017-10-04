@@ -42,7 +42,7 @@ void operatorControl() {
 
 	while (1) {
     float measurement = (encoderGet(leftEnc) + encoderGet(rightEnc)) / 2.0;
-    pid.updateError(measurement);
+    pid.updateError(500 - measurement);
     pid.counter_++;
     controller.driveForward(pid.totalError());
 
