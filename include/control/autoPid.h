@@ -26,7 +26,7 @@ namespace okapi {
         const int epochLength_ = 200;
     private:
         float p_error, i_error, d_error, i_e_fabs_, Kp, Ki, Kd, epochCumulativeError_, previousEpochError_;
-        const float errorThreshold_ = 5e-3, learnRate_ = 1e-2;
+        const float errorThreshold_ = 0.0005, learnRate_ = 0.000001;
 
         void updateEpochError(float cte);
         void adjust(float &Kx, float dx, float dE);

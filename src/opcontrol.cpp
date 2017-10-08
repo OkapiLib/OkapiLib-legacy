@@ -30,30 +30,55 @@ void operatorControl() {
 	Encoder rightEnc = encoderInit(3, 4, false);
 	ChassisControllerPid controller(SkidSteerModelParams<3>({2_m,3_m,4_m, 5_m,6_m,7_m}, leftEnc, rightEnc), PidParams(0.15, 0.05, 0.07), PidParams(0.02, 0.01, 0));
 
-	const unsigned char liftPot = 1;
+	// const unsigned char liftPot = 1;
 
   GenericController<2> liftController({8_m, 9_m}, std::make_shared<NsPid>(NsPid(PidParams(0.2, 0.1, 0.1), VelMathParams(360), 0.5)));
 
-	constexpr int liftUpTarget = 2570, lift34 = 300, liftDownTarget = 10;
-	int target = liftUpTarget;
+	// constexpr int liftUpTarget = 2570, lift34 = 300, liftDownTarget = 10;
+	// int target = liftUpTarget;
+
+  taskDelay(2000);
 
   AutoPid pid;
-  pid.init(0.2, 0.004, 3);
+  pid.init(0.15, 0.05, 0.07);
+  float target = 1000;
+  Timer t;
 
 	while (1) {
     float measurement = (encoderGet(leftEnc) + encoderGet(rightEnc)) / 2.0;
-    pid.updateError(500 - measurement);
+    // printf("%1.2f\n", measurement);
+    pid.updateError(target - measurement);
     pid.counter_++;
-    controller.driveForward(pid.totalError());
+    controller.driveForward(-1 * pid.totalError());
 
-    if (pid.counter_ % pid.epochLength_ == 0) {
+    // if (pid.counter_ % pid.epochLength_ == 0) {
+    //   pid.evaluate();
+    //   if (pid.needsTraining_) {
+    //     printf("backprop...\n");
+    //     pid.backProp();
+    //   }
+    //   printf("Measurement: %1.2f, Response: %1.2f, RMSE: %1.2f, Kp: %1.2f, Ki: %1.2f, Kd: %1.2f\n", measurement, (float)sqrt(pid.currentEpochError_ / pid.counter_), pid.getKp(), pid.getKi(), pid.getKd());
+    //   pid.resetEpochError();
+    // }
+
+    if (t.repeat(5000)) {
+      controller.driveForward(0);
+      target *= -1;
+
+      printf("backprop...\n");
       pid.evaluate();
-      if (pid.needsTraining_)
+      if (pid.needsTraining_) {
         pid.backProp();
-      else
-        printf("Measurement: %1.2f, Response: %1.2f, RMSE: %1.2f, Kp: %1.2f, Ki: %1.2f, Kd: %1.2f\n", measurement, (float)sqrt(pid.currentEpochError_ / pid.counter_), pid.getKp(), pid.getKi(), pid.getKd());
+      }
+      printf("Measurement: %1.2f, Response: %1.2f, RMSE: %1.2f, Kp: %1.2f, Ki: %1.2f, Kd: %1.2f\n", measurement, (float)sqrt(pid.currentEpochError_ / pid.counter_), pid.getKp(), pid.getKi(), pid.getKd());
       pid.resetEpochError();
+
+      taskDelay(1000);
+      encoderReset(leftEnc);
+      encoderReset(rightEnc);
     }
+
+    taskDelay(15);
 
 		// if (joystickGetDigital(1, 6, JOY_UP))
 		// 	target = liftUpTarget;

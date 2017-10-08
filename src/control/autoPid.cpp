@@ -1,6 +1,7 @@
 #include "control/autoPid.h"
 
 #include <cmath>
+#include <API.h>
 
 namespace okapi {
     AutoPid::AutoPid() {}
@@ -45,7 +46,10 @@ namespace okapi {
 
     void AutoPid::adjust(float &Kx, float dx, float dE) {
         float partialDKx = Kx * dx * dE * learnRate_;
+        printf("partialDKx: %1.2f\n", partialDKx);
         Kx -= partialDKx;
+        if (Kx < 0)
+          Kx = 0;
     }
 
     float AutoPid::getKp() const { return Kp; }
