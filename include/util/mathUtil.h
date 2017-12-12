@@ -12,6 +12,13 @@ namespace okapi {
   static constexpr float ime269TPR = 240.448;
   static constexpr float quadEncoderTPR = 360.0;
   static constexpr float pi = 3.14159265358979323846;
+
+  constexpr float ipow(float x, int n) {
+    return (n == 0) ? 1 :
+      n == 1 ? x :
+        n > 1 ? ((n & 1) ? x * ipow(x, n-1) : ipow(x, n/2) * ipow(x, n/2)) :
+        1 / ipow(x, -n);
+  }
 }
 
 #endif /* end of include guard: OKAPI_MATHUTIL */

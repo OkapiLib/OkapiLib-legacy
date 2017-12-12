@@ -35,6 +35,7 @@
 #include "filter/avgFilter.h"
 #include "filter/demaFilter.h"
 #include "filter/emaFilter.h"
+#include "filter/ekfFilter.h"
 #include "filter/filter.h"
 
 #include "odometry/odometry.h"
@@ -96,7 +97,7 @@ void operatorControl() {
   //   liftController.step(static_cast<float>(analogRead(liftPot)));
 
   //   controller.arcade(joystickGetAnalog(1, 2), joystickGetAnalog(1, 1));
-    
+
     // if (joystickGetDigital(1, 8, JOY_RIGHT)) {
     //   encoderReset(leftEnc);
     //   encoderReset(rightEnc);
@@ -117,7 +118,7 @@ void operatorControl() {
     //       controller.turnClockwise(power);
     //       power++;
     //     }
-          
+
     //       const float avg = (encoderGet(leftEnc) - encoderGet(rightEnc)) / 2.0;
     //       vm1.loop(avg);
     //       vm2.loop(avg);
