@@ -15,12 +15,12 @@
     
     <meta name="description" content="A PROS library for fast C&#43;&#43; development.">
     
-    <link rel="canonical" href="https://okapilib.github.io/OkapiLib/api/filter/emafilter/">
+    <link rel="canonical" href="https://okapilib.github.io/OkapiLib/api/filter/ekffilter/">
     
     <meta name="author" content="OkapiLib">
     
 
-    <meta property="og:url" content="https://okapilib.github.io/OkapiLib/api/filter/emafilter/">
+    <meta property="og:url" content="https://okapilib.github.io/OkapiLib/api/filter/ekffilter/">
     <meta property="og:title" content="Okapi Docs">
     <meta property="og:image" content="https://okapilib.github.io/OkapiLib/images/okapi.jpg">
     <meta name="apple-mobile-web-app-title" content="Okapi Docs">
@@ -299,15 +299,17 @@
 
 			
 
-<h2 id="emafilter">EmaFilter</h2>
+<h2 id="ekffilter">EKFFilter</h2>
 
-<p>The <code>EmaFilter</code> class inherits from <code>Filter</code>. It is an infinite impulse response (IIR) filter that implements the exponential moving average algorithm (EMA).</p>
+<p>The <code>EKFFilter</code> class inherits from <code>Filter</code>. It is a very simple implementation of a one-dimensional extended kalman filter. It does not have any internal model and it is only suited for filtering simple signals, such as a robot&rsquo;s velocity.</p>
 
 <h3 id="constructor">Constructor</h3>
 
 <pre><code class="language-c++">//Signature
-EmaFilter(const float ialpha, const float ibeta)
+EKFFilter(const float iQ = 0.0001,  const float iR = ipow(0.2, 2))
 </code></pre>
+
+<p>Process variance is an estimate of how inaccurate the model is. Measurement variance is an estimate of how noisy the sensor is. If you really want to dial in <code>R</code> yourself, then you can record unfiltered data of the process held constant at one state (the robot spinning in place at a constant motor power, for example). Then, you can subtract the estimated signal value from the data, leaving only the noise behind.</p>
 
 <table>
 <thead>
@@ -319,42 +321,13 @@ EmaFilter(const float ialpha, const float ibeta)
 
 <tbody>
 <tr>
-<td>ialpha</td>
-<td>Alpha gain</td>
+<td>iQ</td>
+<td>Process variance</td>
 </tr>
 
 <tr>
-<td>ibeta</td>
-<td>Beta gain</td>
-</tr>
-</tbody>
-</table>
-
-<h3 id="setgains">setGains</h3>
-
-<pre><code class="language-c++">//Signature
-void setGains(const float ialpha, const float ibeta)
-</code></pre>
-
-<p>Set new gains for this filter</p>
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>ialpha</td>
-<td>New alpha gain</td>
-</tr>
-
-<tr>
-<td>ibeta</td>
-<td>New beta gain</td>
+<td>iR</td>
+<td>Measurement variance</td>
 </tr>
 </tbody>
 </table>
@@ -374,7 +347,7 @@ void setGains(const float ialpha, const float ibeta)
 <nav class="pagination" aria-label="Footer">
   <div class="previous">
   
-      <a href="https://okapilib.github.io/OkapiLib/api/filter/ekffilter/" title="">
+      <a href="https://okapilib.github.io/OkapiLib/api/filter/demafilter/" title="">
         <span class="direction">
           Previous
         </span>
@@ -394,7 +367,7 @@ void setGains(const float ialpha, const float ibeta)
 
   <div class="next">
   
-      <a href="https://okapilib.github.io/OkapiLib/api/filter/filter/" title="">
+      <a href="https://okapilib.github.io/OkapiLib/api/filter/emafilter/" title="">
         <span class="direction">
           Next
         </span>

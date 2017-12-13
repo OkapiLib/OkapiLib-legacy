@@ -7,15 +7,15 @@ The `VelPid` class implements the Pid algorithm for the velocity domain, with so
 ```c++
 //Signature
 VelPid(const float ikP, const float ikD)
+VelPid(const float ikP, const float ikD, const VelMath& ivelMath)
 VelPid(const VelPidParams& params)
 ```
 
 Parameter | Description
 ----------|------------
 ikP | Proportional gain
-ikI | Integral gain
 ikD | Derivative gain
-ikBias | Controller bias (this value added to output, default 0)
+ivelMath | `VelMath`
 params | `VelPidParams`
 
 ### stepVel
@@ -119,20 +119,6 @@ void flipDisable()
 ```
 
 Change whether the controller is on or off. A controller which is off will output 0.
-
-### setGains
-
-```c++
-//Signature
-void setGains(const float ikP, const float ikD)
-```
-
-Set new controller gains and bias.
-
-Parameter | Description
-----------|------------
-ikP | Proportional gain
-ikD | Derivative gain
 
 ### setFilterGains
 

@@ -307,6 +307,7 @@
 
 <pre><code class="language-c++">//Signature
 VelPid(const float ikP, const float ikD)
+VelPid(const float ikP, const float ikD, const VelMath&amp; ivelMath)
 VelPid(const VelPidParams&amp; params)
 </code></pre>
 
@@ -325,18 +326,13 @@ VelPid(const VelPidParams&amp; params)
 </tr>
 
 <tr>
-<td>ikI</td>
-<td>Integral gain</td>
-</tr>
-
-<tr>
 <td>ikD</td>
 <td>Derivative gain</td>
 </tr>
 
 <tr>
-<td>ikBias</td>
-<td>Controller bias (this value added to output, default 0)</td>
+<td>ivelMath</td>
+<td><code>VelMath</code></td>
 </tr>
 
 <tr>
@@ -502,35 +498,6 @@ void flipDisable()
 </code></pre>
 
 <p>Change whether the controller is on or off. A controller which is off will output 0.</p>
-
-<h3 id="setgains">setGains</h3>
-
-<pre><code class="language-c++">//Signature
-void setGains(const float ikP, const float ikD)
-</code></pre>
-
-<p>Set new controller gains and bias.</p>
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>ikP</td>
-<td>Proportional gain</td>
-</tr>
-
-<tr>
-<td>ikD</td>
-<td>Derivative gain</td>
-</tr>
-</tbody>
-</table>
 
 <h3 id="setfiltergains">setFilterGains</h3>
 

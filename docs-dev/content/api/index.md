@@ -26,6 +26,7 @@ Most users should not call this constructor with a std::shared_ptr&lt;ChassisMod
 {{< readfile file="content/api/device/cubicSlewMotor.md" markdown="true" >}}
 {{< readfile file="content/api/filter/demaFilter.md" markdown="true" >}}
 {{< readfile file="content/api/odometry/distanceAndAngle.md" markdown="true" >}}
+{{< readfile file="content/api/filter/ekfFilter.md" markdown="true" >}}
 {{< readfile file="content/api/filter/emaFilter.md" markdown="true" >}}
 {{< readfile file="content/api/filter/filter.md" markdown="true" >}}
 {{< readfile file="content/api/control/genericController.md" markdown="true" >}}

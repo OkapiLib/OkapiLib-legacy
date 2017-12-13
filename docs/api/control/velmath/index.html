@@ -304,7 +304,7 @@
 <h3 id="constructor">Constructor</h3>
 
 <pre><code class="language-c++">//Signature
-VelMath(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041)
+VelMath(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2))
 VelMath(const VelMathParams&amp; iparams)
 </code></pre>
 
@@ -323,13 +323,13 @@ VelMath(const VelMathParams&amp; iparams)
 </tr>
 
 <tr>
-<td>ialpha</td>
-<td><code>DemaFilter</code> alpha gain</td>
+<td>iQ</td>
+<td><code>EKF</code> Process variance</td>
 </tr>
 
 <tr>
-<td>ibeta</td>
-<td><code>DemaFilter</code> beta gain</td>
+<td>iR</td>
+<td><code>EKF</code> Measurement variance</td>
 </tr>
 </tbody>
 </table>
@@ -341,35 +341,6 @@ float step(const float inewPos)
 </code></pre>
 
 <p>Calculate, filter, and return a new velocity. This need to be called every so many milliseconds (not any faster than 15 ms).</p>
-
-<h3 id="setgains">setGains</h3>
-
-<pre><code class="language-c++">//Signature
-void setGains(const float ialpha, const float ibeta)
-</code></pre>
-
-<p>Set new filter gains.</p>
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>ialpha</td>
-<td>Alpha gain</td>
-</tr>
-
-<tr>
-<td>ibeta</td>
-<td>Beta gain</td>
-</tr>
-</tbody>
-</table>
 
 <h3 id="setticksperrev">setTicksPerRev</h3>
 

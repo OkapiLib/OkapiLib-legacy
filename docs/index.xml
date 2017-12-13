@@ -170,7 +170,7 @@ Constructor //Signature Pid(const float ikP, const float ikI, const float ikD, c
       
       <guid>https://okapilib.github.io/OkapiLib/api/control/pid/velpid/</guid>
       <description>VelPid The VelPid class implements the Pid algorithm for the velocity domain, with some quality-of-life changes to support online tuning. Inherits from ControlObject.
-Constructor //Signature VelPid(const float ikP, const float ikD) VelPid(const VelPidParams&amp;amp; params)     Parameter Description     ikP Proportional gain   ikI Integral gain   ikD Derivative gain   ikBias Controller bias (this value added to output, default 0)   params VelPidParams    stepVel //Signature virtual float stepVel(const float inewReading)  Do one iteration of velocity math to compute a new filtered velocity.</description>
+Constructor //Signature VelPid(const float ikP, const float ikD) VelPid(const float ikP, const float ikD, const VelMath&amp;amp; ivelMath) VelPid(const VelPidParams&amp;amp; params)     Parameter Description     ikP Proportional gain   ikD Derivative gain   ivelMath VelMath   params VelPidParams    stepVel //Signature virtual float stepVel(const float inewReading)  Do one iteration of velocity math to compute a new filtered velocity.</description>
     </item>
     
     <item>
@@ -189,7 +189,7 @@ Constructor //Signature VelPid(const float ikP, const float ikD) VelPid(const Ve
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://okapilib.github.io/OkapiLib/api/control/velmath/</guid>
-      <description>VelMath Constructor //Signature VelMath(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041) VelMath(const VelMathParams&amp;amp; iparams)     Parameter Description     iticksPerRev Encoder ticks per one revolution   ialpha DemaFilter alpha gain   ibeta DemaFilter beta gain    step //Signature float step(const float inewPos)  Calculate, filter, and return a new velocity. This need to be called every so many milliseconds (not any faster than 15 ms).</description>
+      <description>VelMath Constructor //Signature VelMath(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2)) VelMath(const VelMathParams&amp;amp; iparams)     Parameter Description     iticksPerRev Encoder ticks per one revolution   iQ EKF Process variance   iR EKF Measurement variance    step //Signature float step(const float inewPos)  Calculate, filter, and return a new velocity. This need to be called every so many milliseconds (not any faster than 15 ms).</description>
     </item>
     
     <item>
@@ -314,6 +314,16 @@ Constructor //Signature AvgFilter()  The constructor does not take any parameter
       <guid>https://okapilib.github.io/OkapiLib/api/filter/demafilter/</guid>
       <description>DemaFilter The DemaFilter class inherits from Filter. It is an infinite impulse response (IIR) filter that implements the double exponential moving average algorithm (EMA). This is very similar to the normal EMA, except it can pick up on trends in data and follow the current trend until a new trend starts. This filter performs better than a single EMA when data frequently follows a trend.
 Constructor //Signature DemaFilter(const float ialpha, const float ibeta)     Parameter Description     ialpha Alpha gain   ibeta Beta gain    setGains //Signature void setGains(const float ialpha, const float ibeta)  Set new gains for this filter</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://okapilib.github.io/OkapiLib/api/filter/ekffilter/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://okapilib.github.io/OkapiLib/api/filter/ekffilter/</guid>
+      <description>EKFFilter The EKFFilter class inherits from Filter. It is a very simple implementation of a one-dimensional extended kalman filter. It does not have any internal model and it is only suited for filtering simple signals, such as a robot&amp;rsquo;s velocity.
+Constructor //Signature EKFFilter(const float iQ = 0.0001, const float iR = ipow(0.2, 2))  Process variance is an estimate of how inaccurate the model is. Measurement variance is an estimate of how noisy the sensor is.</description>
     </item>
     
     <item>

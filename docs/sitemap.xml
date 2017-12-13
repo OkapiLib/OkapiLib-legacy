@@ -123,6 +123,10 @@
   </url>
   
   <url>
+    <loc>https://okapilib.github.io/OkapiLib/api/filter/ekffilter/</loc>
+  </url>
+  
+  <url>
     <loc>https://okapilib.github.io/OkapiLib/api/filter/emafilter/</loc>
   </url>
   

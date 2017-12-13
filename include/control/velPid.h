@@ -37,6 +37,26 @@ namespace okapi {
 
     /**
      * Velocity PID controller
+     * @param ikP    Proportional gain
+     * @param ikD    Derivative gain
+     * @param ivelMath VelMath for velocity estimation
+     */
+    VelPid(const float ikP, const float ikD, const VelMath& ivelMath):
+      lastTime(0),
+      sampleTime(15),
+      error(0),
+      lastError(0),
+      target(0),
+      output(0),
+      outputMax(127),
+      outputMin(-127),
+      isOn(true),
+      velMath(ivelMath) {
+        setGains(ikP, ikD);
+      }
+
+    /**
+     * Velocity PID controller
      * @param params Params (see VelPidParams docs)
      */
     VelPid(const VelPidParams& params):

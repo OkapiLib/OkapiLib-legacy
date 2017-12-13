@@ -1382,6 +1382,39 @@ DistanceAndAngle()
 </tbody>
 </table>
 
+<h2 id="ekffilter">EKFFilter</h2>
+
+<p>The <code>EKFFilter</code> class inherits from <code>Filter</code>. It is a very simple implementation of a one-dimensional extended kalman filter. It does not have any internal model and it is only suited for filtering simple signals, such as a robot&rsquo;s velocity.</p>
+
+<h3 id="constructor">Constructor</h3>
+
+<pre><code class="language-c++">//Signature
+EKFFilter(const float iQ = 0.0001,  const float iR = ipow(0.2, 2))
+</code></pre>
+
+<p>Process variance is an estimate of how inaccurate the model is. Measurement variance is an estimate of how noisy the sensor is. If you really want to dial in <code>R</code> yourself, then you can record unfiltered data of the process held constant at one state (the robot spinning in place at a constant motor power, for example). Then, you can subtract the estimated signal value from the data, leaving only the noise behind.</p>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>iQ</td>
+<td>Process variance</td>
+</tr>
+
+<tr>
+<td>iR</td>
+<td>Measurement variance</td>
+</tr>
+</tbody>
+</table>
+
 <h2 id="emafilter">EmaFilter</h2>
 
 <p>The <code>EmaFilter</code> class inherits from <code>Filter</code>. It is an infinite impulse response (IIR) filter that implements the exponential moving average algorithm (EMA).</p>
@@ -3234,7 +3267,7 @@ bool repeat(unsigned long ms)
 <h3 id="constructor">Constructor</h3>
 
 <pre><code class="language-c++">//Signature
-VelMath(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041)
+VelMath(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2))
 VelMath(const VelMathParams&amp; iparams)
 </code></pre>
 
@@ -3253,13 +3286,13 @@ VelMath(const VelMathParams&amp; iparams)
 </tr>
 
 <tr>
-<td>ialpha</td>
-<td><code>DemaFilter</code> alpha gain</td>
+<td>iQ</td>
+<td><code>EKF</code> Process variance</td>
 </tr>
 
 <tr>
-<td>ibeta</td>
-<td><code>DemaFilter</code> beta gain</td>
+<td>iR</td>
+<td><code>EKF</code> Measurement variance</td>
 </tr>
 </tbody>
 </table>
@@ -3271,35 +3304,6 @@ float step(const float inewPos)
 </code></pre>
 
 <p>Calculate, filter, and return a new velocity. This need to be called every so many milliseconds (not any faster than 15 ms).</p>
-
-<h3 id="setgains">setGains</h3>
-
-<pre><code class="language-c++">//Signature
-void setGains(const float ialpha, const float ibeta)
-</code></pre>
-
-<p>Set new filter gains.</p>
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>ialpha</td>
-<td>Alpha gain</td>
-</tr>
-
-<tr>
-<td>ibeta</td>
-<td>Beta gain</td>
-</tr>
-</tbody>
-</table>
 
 <h3 id="setticksperrev">setTicksPerRev</h3>
 
@@ -3349,6 +3353,7 @@ float getDiff() const
 
 <pre><code class="language-c++">//Signature
 VelPid(const float ikP, const float ikD)
+VelPid(const float ikP, const float ikD, const VelMath&amp; ivelMath)
 VelPid(const VelPidParams&amp; params)
 </code></pre>
 
@@ -3367,18 +3372,13 @@ VelPid(const VelPidParams&amp; params)
 </tr>
 
 <tr>
-<td>ikI</td>
-<td>Integral gain</td>
-</tr>
-
-<tr>
 <td>ikD</td>
 <td>Derivative gain</td>
 </tr>
 
 <tr>
-<td>ikBias</td>
-<td>Controller bias (this value added to output, default 0)</td>
+<td>ivelMath</td>
+<td><code>VelMath</code></td>
 </tr>
 
 <tr>
@@ -3544,35 +3544,6 @@ void flipDisable()
 </code></pre>
 
 <p>Change whether the controller is on or off. A controller which is off will output 0.</p>
-
-<h3 id="setgains">setGains</h3>
-
-<pre><code class="language-c++">//Signature
-void setGains(const float ikP, const float ikD)
-</code></pre>
-
-<p>Set new controller gains and bias.</p>
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>ikP</td>
-<td>Proportional gain</td>
-</tr>
-
-<tr>
-<td>ikD</td>
-<td>Derivative gain</td>
-</tr>
-</tbody>
-</table>
 
 <h3 id="setfiltergains">setFilterGains</h3>
 

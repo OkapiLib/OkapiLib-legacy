@@ -4,15 +4,15 @@
 
 ```c++
 //Signature
-VelMath(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041)
+VelMath(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2))
 VelMath(const VelMathParams& iparams)
 ```
 
 Parameter | Description
 ----------|------------
 iticksPerRev | Encoder ticks per one revolution
-ialpha | `DemaFilter` alpha gain
-ibeta | `DemaFilter` beta gain
+iQ | `EKF` Process variance
+iR | `EKF` Measurement variance
 
 ### step
 
@@ -22,20 +22,6 @@ float step(const float inewPos)
 ```
 
 Calculate, filter, and return a new velocity. This need to be called every so many milliseconds (not any faster than 15 ms).
-
-### setGains
-
-```c++
-//Signature
-void setGains(const float ialpha, const float ibeta)
-```
-
-Set new filter gains.
-
-Parameter | Description
-----------|------------
-ialpha | Alpha gain
-ibeta | Beta gain
 
 ### setTicksPerRev
 
