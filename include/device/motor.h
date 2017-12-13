@@ -1,6 +1,119 @@
 #ifndef OKAPI_MOTOR
 #define OKAPI_MOTOR
 
+/*-----------------------------------------------------------------------------*/
+/*                                                                             */
+/*                        Copyright (c) James Pearman                          */
+/*                                   2012                                      */
+/*                            All Rights Reserved                              */
+/*                                                                             */
+/*-----------------------------------------------------------------------------*/
+/*                                                                             */
+/*    Module:     SmartMotorLib.c                                              */
+/*    Author:     James Pearman                                                */
+/*    Created:    2 Oct 2012                                                   */
+/*                                                                             */
+/*    Revisions:                                                               */
+/*                V1.00  21 Oct 2012 - Initial release                         */
+/*                V1.01   7 Dec 2012                                           */
+/*                       small bug in SmartMotorLinkMotors                     */
+/*                       fix for High Speed 393 Ke constant                    */
+/*                       kNumbOfTotalMotors replaced with kNumbOfRealMotors    */
+/*                       _Target_Emulator_ defined for versions of ROBOTC      */
+/*                       prior to 3.55                                         */
+/*                       change to motor enums for V3.60 ROBOTC compatibility  */
+/*               V1.02  27 Jan 2013                                            */
+/*                      Linking an encoded and non-encoded motor was not       */
+/*                      working correctly, added new field to the structure    */
+/*                      eport to allow one motor to access the encoder for     */
+/*                      another correctly.                                     */
+/*               V1.03  10 March 2013                                          */
+/*                      Due to new version of ROBOTC (V3.60) detection of PID  */
+/*                      version changed. V3.60 was originally planned to have  */
+/*                      different motor definitions.                           */
+/*                      Added the ability to assign any sensor to be used      */
+/*                      for rpm calculation, a bit of a kludge as I didn't     */
+/*                      want to add a new variable so reused encoder_id        */
+/*               V1.04  27 June 2013                                           */
+/*                      Change license (added) to the Apache License           */
+/*               V1.05  11 Nov 2013                                            */
+/*                      Fix bug when speed limited and changing directions     */
+/*                      quickly.                                               */
+/*               V1.06  3 Sept 2014                                            */
+/*                      Added support for the 393 Turbo Gears and ROBOTC V4.26 */
+/*               V1.07  17 April 2016                                          */
+/*                      Allow motor control disable using a slew rate of 0     */
+/*               V1.08  8 May 2016                                             */
+/*                      Change function calls to be compatible with V4.XX      */
+/*                      Add _NO_WARNING macro                                  */
+/*-----------------------------------------------------------------------------*/
+/*                                                                             */
+/*    The author is supplying this software for use with the VEX cortex        */
+/*    control system. This file can be freely distributed and teams are        */
+/*    authorized to freely use this program , however, it is requested that    */
+/*    improvements or additions be shared with the Vex community via the vex   */
+/*    forum.  Please acknowledge the work of the authors when appropriate.     */
+/*    Thanks.                                                                  */
+/*                                                                             */
+/*    Licensed under the Apache License, Version 2.0 (the "License");          */
+/*    you may not use this file except in compliance with the License.         */
+/*    You may obtain a copy of the License at                                  */
+/*                                                                             */
+/*      http://www.apache.org/licenses/LICENSE-2.0                             */
+/*                                                                             */
+/*    Unless required by applicable law or agreed to in writing, software      */
+/*    distributed under the License is distributed on an "AS IS" BASIS,        */
+/*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. */
+/*    See the License for the specific language governing permissions and      */
+/*    limitations under the License.                                           */
+/*                                                                             */
+/*    Portions of this code are based on work by Chris Siegert aka vamfun on   */
+/*    the Vex forums.                                                          */
+/*    blog:  vamfun.wordpress.com for model details and vex forum threads      */
+/*    email: vamfun_at_yahoo_dot_com                                           */
+/*    Mentor for team 599 Robodox and team 1508 Lancer Bots                    */
+/*                                                                             */
+/*    The author can be contacted on the vex forums as jpearman                */
+/*    email: jbpearman_at_mac_dot_com                                          */
+/*    Mentor for team 8888 RoboLancers, Pasadena CA.                           */
+/*                                                                             */
+/*-----------------------------------------------------------------------------*/
+/*                                                                             */
+/*    Description:                                                             */
+/*                                                                             */
+/*    This library is designed to work with encoded motors and provides        */
+/*    functions to obtain velocity, instantaneous current and estimated PTC    */
+/*    temperature.  This data is then used to allow fixed threshold or         */
+/*    temperature based current limiting.                                      */
+/*                                                                             */
+/*    The algorithms used are based on experiments and work done during the    */
+/*    summer of 2012 by Chris Siegert and James Pearman.                       */
+/*                                                                             */
+/*    This library makes extensive use of pointers and therefore needs ROBOTC  */
+/*    V3.51 or later.                                                          */
+/*                                                                             */
+/*    The following vexforum threads have much of the background information   */
+/*    used in this library.                                                    */
+/*    http://www.vexforum.com/showthread.php?t=72100                           */
+/*    http://www.vexforum.com/showthread.php?t=73318                           */
+/*    http://www.vexforum.com/showthread.php?t=73960                           */
+/*    http://www.vexforum.com/showthread.php?t=74594                           */
+/*                                                                             */
+/*    Global Memory use for V1.02 is 1404 bytes                                */
+/*      1240 for motor data                                                    */
+/*       156 for controller data                                               */
+/*         8 misc                                                              */
+/*                                                                             */
+/*    CPU time for SmartMotorTask                                              */
+/*    Motor calculations ~ 530uS,  approx 5% cpu bandwidth                     */
+/*    Controller calculations with LED status ~ 1.25mS                         */
+/*    Worse case is therefore about 1.8mS which occurs every 100mS             */
+/*                                                                             */
+/*    CPU time for SmartMotorSlewRateTask                                      */
+/*    approx 400uS per 15mS loop, about 3% cpu bandwidth                       */
+/*                                                                             */
+/*-----------------------------------------------------------------------------*/
+
 #include "PAL/PAL.h"
 
 namespace okapi {
@@ -150,6 +263,58 @@ namespace okapi {
       }
     }
   };
+
+  class SmartMotor : public Motor {
+  public:
+    SmartMotor(const RotarySensor& iRS, const float itpr):
+      t_const_1(c1393),
+      t_const_2(c2393),
+      t_ambient(tempAmbient),
+      current(0),
+      peak_current(0),
+      safe_current(iSafeCortex),
+      i_free(iFree393),
+      i_stall(iStall393),
+      r_motor(r393),
+      l_motor(l393),
+      ke_motor(ke393),
+      rpm_free(rpmFree393),
+      ticks_per_rev(itpr),
+      safe_current(iSafe393),
+      enc(0),
+      oldenc(0),
+      t_ambient(tempAmbient),
+      temperature(t_ambient),
+      target_current(safe_current),
+      limit_current(safe_current),
+      limit_tripped(0),
+      ptc_tripped(0),
+      limit_cmd(motorMaxCmdUndefined),
+      v_bemf_max(ke_motor * rpm_free) {}
+  
+  protected:
+    constexpr int motorMaxCmdUndefined = 255;
+    constexpr float rSys = 0.3, pwmFreq = 1150, vDiode = 0.75;
+    constexpr float iFree393 = 0.2, iStall393 = 4.8, rpmFree393 = 110, r393 = 7.2 / iStall393, l393 = 0.00065,
+      ke393 = 7.2 * (1 - iFree393 / iStall393) / rpmFree393, iSafe393 = 0.9;
+    constexpr float iSafeCortex = 3.0, iSafePE = 3.0;
+    constexpr float tempAmbient = (72.0 - 32.0) * 5 / 9, tempTrip = 100.0, tempHyst = 10.0, tempRef = 25.0;
+    constexpr float iHoldCortex = 3.0, tTripCortex = 1.7, kTauCortex = 0.5, tauCortex = kTauCortex * tTripCortex * 5.0 * 5.0,
+      c1Cortex = (tempTrip - tempRef) / (iHoldCortex * iHoldCortex), c2Cortex = 1.0 / (tauCortex * 1000.0);
+    constexpr float iHold393 = 1.0/* 0.9 */, tTrip393 = 7.1, kTau393 = 0.5, tau393 = kTau393 * tTrip393 * 5.0 * 5.0,
+      c1393 = (tempTrip - tempRef) / (iHold393 * iHold393), c2393 = 1.0 / (tau393 * 1000.0);
+
+    short motor_cmd, motor_req, motor_slew;
+    short limit_tripped, limit_cmd, limit_current;
+    RotarySensor encoder;
+    float ticks_per_rev;
+    long enc, oldenc;
+    float delta, rpm;
+    float i_free, i_stall, r_motor, l_motor, ke_motor, rpm_free, v_bemf_max;
+    float current, filtered_current, peak_current, safe_current, target_current;
+    float temperature, t_const_1, t_const_2, t_ambient, ptc_tripped;
+    unsigned long lastTime;
+  }
 
   inline namespace literals {
     constexpr Motor operator"" _m(const unsigned long long int m) { return Motor(static_cast<unsigned char>(m), 1); }
