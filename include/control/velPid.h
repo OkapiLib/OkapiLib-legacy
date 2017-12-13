@@ -101,13 +101,6 @@ namespace okapi {
     void setGains(const float ikP, const float ikD);
 
     /**
-     * Set the gains for the double moving average filter. Defaults are 0.19 and 0.0526, respectively
-     * @param alpha Alpha gain
-     * @param beta  Beta gain
-     */
-    void setFilterGains(const float alpha, const float beta) { velMath.setGains(alpha, beta); }
-
-    /**
      * Set the number of measurements per revolution. Default is 360
      * @param tpr Number of measured units per revolution
      */
