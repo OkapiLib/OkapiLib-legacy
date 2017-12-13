@@ -30,6 +30,9 @@ namespace okapi {
       xHat = xHatMinus + K * (ireading - xHatMinus);
       P = (1 - K) * Pminus;
 
+      xHatPrev = xHat;
+      Pprev = P;
+
       return xHat;
     }
 
