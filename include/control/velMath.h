@@ -1,28 +1,30 @@
 #ifndef OKAPI_VELOCITY
 #define OKAPI_VELOCITY
 
-#include "filter/demaFilter.h"
+#include "filter/ekfFilter.h"
+#include "util/mathUtil.h"
+#include "PAL/PAL.h"
 
 namespace okapi {
   class VelMathParams {
     public:
-      VelMathParams(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041):
+      VelMathParams(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2)):
         ticksPerRev(iticksPerRev),
-        alpha(ialpha),
-        beta(ibeta) {}
+        Q(iQ),
+        R(iR) {}
 
-      float ticksPerRev, alpha, beta;
+      float ticksPerRev, Q, R;
   };
 
   class VelMath {
   public:
-    VelMath(const float iticksPerRev, const float ialpha = 0.19, const float ibeta = 0.041):
+    VelMath(const float iticksPerRev, const float iQ = 0.0001, const float iR = ipow(0.2, 2)):
       lastTime(0),
       vel(0),
       lastVel(0),
       lastPos(0),
       ticksPerRev(iticksPerRev),
-      filter(ialpha, ibeta) {}
+      filter(iQ, iR) {}
 
     VelMath(const VelMathParams& iparams):
       lastTime(0),
@@ -30,16 +32,24 @@ namespace okapi {
       lastVel(0),
       lastPos(0),
       ticksPerRev(iparams.ticksPerRev),
-      filter(iparams.alpha, iparams.beta) {}
+      filter(iparams.Q, iparams.R) {}
 
     /**
      * Calculate new velocity
      * @param  inewPos New position
      * @return         New velocity
      */
-    float step(const float inewPos);
+    float step(const float inewPos) {
+      const long now = PAL::millis();
 
-    void setGains(const float ialpha, const float ibeta) { filter.setGains(ialpha, ibeta); }
+      vel = static_cast<float>((1000 / (now - lastTime))) * (inewPos - lastPos) * (60 / ticksPerRev);
+      vel = filter.filter(vel);
+
+      lastPos = inewPos;
+      lastTime = now;
+
+      return vel;
+    }
 
     void setTicksPerRev(const float iTPR) { ticksPerRev = iTPR; }
 
@@ -49,7 +59,7 @@ namespace okapi {
   private:
     long lastTime;
     float vel, lastVel, lastPos, ticksPerRev;
-    DemaFilter filter;
+    EKFFilter filter;
   };
 }
 
