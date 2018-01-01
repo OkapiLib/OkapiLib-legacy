@@ -9,7 +9,7 @@ namespace okapi {
     
     /**
      * Filters a reading
-     * @param  reading New measurement
+     * @param  ireading New measurement
      * @return         Filtered result
      */
     virtual float filter(const float ireading) = 0;

@@ -55,6 +55,10 @@ void operatorControl() {
 
   Button driveBtn(1, 8, JOY_UP);
 
+  EKFFilter ekf(1e-1, 110.37);
+  ekf.filter(10);
+  ekf.filter(10, 0.1);
+
   auto scales = OdomMath::guessScales(11.75, 3.25, imeTurboTPR);
   OdomChassisControllerPid controller(
     OdomParams(SkidSteerModelParams<3>({2_m,3_m,4_m, 5_m,6_m,7_m}, leftIME, rightIME), std::get<0>(scales), std::get<1>(scales)),

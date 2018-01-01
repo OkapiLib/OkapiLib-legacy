@@ -21,8 +21,18 @@ namespace okapi {
     virtual ~EKFFilter() = default;
 
     float filter(const float ireading) override {
+      return filter(ireading, 0);
+    }
+
+    /**
+     * Filters a reading
+     * @param  ireading New measurement
+     * @param  icontrol Control input
+     * @return         Filtered result
+     */
+    float filter(const float ireading, const float icontrol) {
       //Time update
-      xHatMinus = xHatPrev;
+      xHatMinus = xHatPrev + icontrol;
       Pminus = Pprev + Q;
 
       //Measurement update
